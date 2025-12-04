@@ -27,8 +27,8 @@ const TextInputStyles = {
 } as const;
 
 if (!TOKEN) {
-  console.error("エラー: .envファイルにDISCORD_TOKENを設定してください。");
-  throw new Error("DISCORD_TOKEN is missing");
+  console.error("エラー: DISCORD_TOKENが設定されていません。");
+  // Deno Deployの環境変数が設定されているか確認してください
 }
 
 // ---------------------------------------------------------
@@ -156,7 +156,7 @@ async function updateRecruitmentMessage(bot: any, channelId: bigint, messageId: 
 // ---------------------------------------------------------
 
 const bot = createBot({
-  token: TOKEN,
+  token: TOKEN || "", // TOKENがない場合は空文字で初期化し、startBotでエラーになるようにする
   intents: Intents.Guilds | Intents.GuildMessages | Intents.MessageContent | Intents.GuildMembers | Intents.GuildVoiceStates,
   events: {
     ready: (_bot, payload) => {
@@ -498,4 +498,8 @@ Deno.cron("Continuous Request", "*/2 * * * *", () => {
     console.log("running...");
 });
 
-await startBot(bot);
+if (TOKEN) {
+    await startBot(bot);
+} else {
+    console.error("Bot token not found. Please set DISCORD_TOKEN in your environment variables.");
+}
