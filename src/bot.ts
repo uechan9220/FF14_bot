@@ -17,7 +17,6 @@ import { load } from "https://deno.land/std@0.208.0/dotenv/mod.ts";
 // 環境変数の読み込み
 await load({ export: true });
 
-
 const TOKEN = Deno.env.get("DISCORD_TOKEN");
 const TARGET_CHANNEL_ID = Deno.env.get("TARGET_CHANNEL_ID");
 
@@ -157,8 +156,8 @@ async function updateRecruitmentMessage(bot: any, channelId: bigint, messageId: 
 // ---------------------------------------------------------
 
 const bot = createBot({
-  token: TOKEN || "", // TOKENがない場合は空文字で初期化し、startBotでエラーになるようにする
-  intents: Intents.Guilds | Intents.GuildMessages | Intents.MessageContent | Intents.GuildMembers | Intents.GuildVoiceStates,
+  token: TOKEN || "",
+  intents: Intents.Guilds | Intents.GuildMessages | Intents.MessageContent | Intents.GuildMembers,
   events: {
     ready: (_bot, payload) => {
       console.log(`${payload.user.username} is ready!`);
@@ -343,15 +342,33 @@ const bot = createBot({
                         }
                     }
 
-                    // 仮メッセージ送信 (InteractionResponseではなく通常のメッセージとして送信してIDを取得する)
-                    // まずはInteractionへの応答を返す（読み込み中...などを消すため）
-                    await bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {
-                        type: InteractionResponseTypes.DeferredChannelMessageWithSource,
-                        data: { flags: 64 }
-                    });
-
+                    // ターゲットチャンネルIDが指定されていて、かつ現在のチャンネルと異なる場合のみ
+                    // メッセージ送信先をターゲットチャンネルにする。
+                    // もしターゲットチャンネルが指定されていない場合は、interaction.channelId (ボタンを押した場所) に出す。
+                    
                     const embed: Embed = { title: "募集中...", description: "準備中" };
+                    
+                    // メッセージを送信
                     const msg = await bot.helpers.sendMessage(targetChannelId, { embeds: [embed] });
+                    
+                    // モーダルへの応答として、DeferredChannelMessageWithSourceを使うと、
+                    // 元のチャンネル（ボタンを押したチャンネル）に「Botが考え中...」が出てしまい、
+                    // その後 editOriginalInteractionResponse で更新するとそこにメッセージが出てしまう。
+                    
+                    // 要望:「作成するを押したところ（元のチャンネル）」には出さず、「指定したところ（TARGET_CHANNEL_ID）」だけに出したい。
+                    
+                    // 解決策:
+                    // Interactionへの応答は「Ephemeral（自分にしか見えないメッセージ）」で「作成しました」と返す。
+                    // 募集パネル自体は sendMessage でターゲットチャンネルに送る（既にやっている）。
+                    // 以前のコードでは DeferredChannelMessageWithSource を使っていたため、元の場所にもメッセージ枠が確保されてしまっていた。
+
+                    await bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {
+                        type: InteractionResponseTypes.ChannelMessageWithSource,
+                        data: { 
+                            content: `募集を作成しました！ -> https://discord.com/channels/${interaction.guildId}/${targetChannelId}/${msg.id}`,
+                            flags: 64 // Ephemeral
+                        }
+                    });
 
                     // データ保存
                     const data: RecruitmentData = {
@@ -365,13 +382,9 @@ const bot = createBot({
                     };
                     recruitments.set(msg.id.toString(), data);
 
-                    // メッセージ更新
+                    // メッセージ更新（ボタンなどを付ける）
                     await updateRecruitmentMessage(bot, targetChannelId, msg.id);
-
-                    // Deferred応答への追記
-                    await bot.helpers.editOriginalInteractionResponse(interaction.token, {
-                        content: `募集を作成しました！ -> https://discord.com/channels/${interaction.guildId}/${targetChannelId}/${msg.id}`
-                    });
+                    
                     return;
                 }
             }
