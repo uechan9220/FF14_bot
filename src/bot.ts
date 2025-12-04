@@ -10,7 +10,6 @@ import {
   InteractionTypes,
   ButtonStyles,
   MessageComponentTypes,
-  TextInputStyles,
   ChannelTypes,
 } from "https://deno.land/x/discordeno@18.0.1/mod.ts";
 import { load } from "https://deno.land/std@0.208.0/dotenv/mod.ts";
@@ -18,9 +17,14 @@ import { load } from "https://deno.land/std@0.208.0/dotenv/mod.ts";
 // 環境変数の読み込み
 await load({ export: true });
 
-const TOKEN = Deno.env.get("TOKEN");
+const TOKEN = Deno.env.get("DISCORD_TOKEN");
 const TARGET_CHANNEL_ID = Deno.env.get("TARGET_CHANNEL_ID");
 
+// 定義されていないEnumを手動定義
+const TextInputStyles = {
+  Short: 1,
+  Paragraph: 2,
+} as const;
 
 if (!TOKEN) {
   console.error("エラー: .envファイルにDISCORD_TOKENを設定してください。");
