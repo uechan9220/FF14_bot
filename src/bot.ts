@@ -29,7 +29,8 @@ const TARGET_CHANNEL_ID = Deno.env.get("TARGET_CHANNEL_ID");
 
 if (!TOKEN) {
     console.error("エラー: .envファイルにDISCORD_TOKENを設定してください。");
-    process.exit(1);
+    // Deno Deployではprocess.exitが許可されていないため、throwで停止します
+    throw new Error("DISCORD_TOKEN is missing");
 }
 
 // クライアントの初期化
@@ -489,4 +490,3 @@ client.on(Events.InteractionCreate, async (interaction: Interaction) => {
 });
 
 client.login(TOKEN);
-
