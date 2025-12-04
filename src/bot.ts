@@ -18,7 +18,7 @@ import { load } from "https://deno.land/std@0.208.0/dotenv/mod.ts";
 // 環境変数の読み込み
 await load({ export: true });
 
-const TOKEN = Deno.env.get("DISCORD_TOKEN");
+const TOKEN = Deno.env.get("TOKEN");
 const TARGET_CHANNEL_ID = Deno.env.get("TARGET_CHANNEL_ID");
 
 
