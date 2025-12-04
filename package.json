@@ -1,0 +1,21 @@
+{
+  "name": "discord-ff14-party-bot-ts",
+  "version": "1.0.0",
+  "description": "FF14 Recruitment Bot in TypeScript",
+  "main": "dist/bot.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/bot.ts",
+    "dev": "ts-node src/bot.ts"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
+
