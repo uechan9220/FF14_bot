@@ -21,6 +21,7 @@ await load({ export: true });
 const TOKEN = Deno.env.get("DISCORD_TOKEN");
 const TARGET_CHANNEL_ID = Deno.env.get("TARGET_CHANNEL_ID");
 
+
 if (!TOKEN) {
   console.error("エラー: .envファイルにDISCORD_TOKENを設定してください。");
   throw new Error("DISCORD_TOKEN is missing");
