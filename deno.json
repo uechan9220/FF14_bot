@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "esnext",
+    "lib": ["deno.window", "deno.ns"],
+    "strict": true
+  }
+}
+
