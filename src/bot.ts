@@ -24,8 +24,8 @@ import dotenv from 'dotenv';
 // 環境変数の読み込み
 dotenv.config();
 
-const TOKEN = process.env.DISCORD_TOKEN;
-const TARGET_CHANNEL_ID = process.env.TARGET_CHANNEL_ID;
+const TOKEN = Deno.env.get("DISCORD_TOKEN");
+const TARGET_CHANNEL_ID = Deno.env.get("TARGET_CHANNEL_ID");
 
 if (!TOKEN) {
     console.error("エラー: .envファイルにDISCORD_TOKENを設定してください。");
